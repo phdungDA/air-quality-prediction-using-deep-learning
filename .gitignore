@@ -1,0 +1,36 @@
+# Data & Models (Do not push large files)
+data/
+models/
+*.csv
+*.npy
+*.pt
+*.pth
+*.h5
+*.hdf5
+*.pkl
+*.weights
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments
+venv/
+env/
+.env
+.venv/
+Pipfile.lock
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Web App (Streamlit / Flask cache)
+.streamlit/
