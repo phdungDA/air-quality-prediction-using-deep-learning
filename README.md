@@ -17,3 +17,54 @@ air-quality-prediction/
 ├── app/                # Mã nguồn Web App Dashboard (Streamlit/FastAPI)
 ├── requirements.txt    # Danh sách thư viện cần thiết
 └── README.md           # Tài liệu hướng dẫn
+```
+
+##📊 Tập dữ liệu (Dataset)
+Nguồn: [Tên nguồn/API, ví dụ: EPA, OpenWeatherMap, hoặc trạm quan trắc địa phương]
+
+Đặc trưng (Features): PM2.5, PM10, NO2, Nhiệt độ, Độ ẩm, Tốc độ gió...
+
+Target: Dự đoán PM2.5 hoặc AQI cho 24-48 giờ tới.
+
+##🚀 Hướng dẫn cài đặt (Installation)
+1. Clone repository:
+```text
+git clone [https://github.com/phdungDA/air-quality-prediction-using-deep-learning.git](https://github.com/phdungDA/air-quality-prediction-using-deep-learning.git)
+cd air-quality-prediction
+```
+
+2. Tạo môi trường ảo và cài đặt thư viện:
+```text
+python -m venv venv
+source venv/bin/activate  # Trên Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Tải dữ liệu và mô hình (Pre-trained):
+
+Tải file dataset và đặt vào thư mục data/raw/.
+
+Tải file model weights và đặt vào thư mục models/.
+
+##⚙️ Hướng dẫn sử dụng (Usage)
+1. Huấn luyện lại mô hình (Training):
+```text
+python src/models/train.py
+```
+
+2. Khởi chạy Ứng dụng Web / Dashboard (Inference):
+```text
+streamlit run app/app.py
+```
+
+##📈 Hiệu năng mô hình (Model Performance)
+
+| Mô hình | RMSE | MAE | R2 |
+| :--- | :---: | :---: | :---: |
+| Baseline | Index | Index | Index |
+| LSTM |  Index | Index | Index |
+| GRU | Index | Index | Index |
+
+##👥 Nhóm phát triển (Contributors)
+[phdungDA] - role: Data Engineer
+---bổ sung thêm tên và vị trí vào đây
