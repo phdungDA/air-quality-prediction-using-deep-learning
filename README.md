@@ -20,7 +20,7 @@ air-quality-prediction/
 ```
 
 ## 📊 Tập dữ liệu (Dataset)
-Nguồn: [Tên nguồn/API, ví dụ: EPA, OpenWeatherMap, hoặc trạm quan trắc địa phương]
+Nguồn: link dataset
 
 Đặc trưng (Features): PM2.5, PM10, NO2, Nhiệt độ, Độ ẩm, Tốc độ gió...
 
@@ -30,7 +30,7 @@ Target: Dự đoán PM2.5 hoặc AQI cho 24-48 giờ tới.
 1. Clone repository:
 ```text
 git clone [https://github.com/phdungDA/air-quality-prediction-using-deep-learning.git](https://github.com/phdungDA/air-quality-prediction-using-deep-learning.git)
-cd air-quality-prediction
+cd air-quality-prediction-using-deep-learning
 ```
 
 2. Tạo môi trường ảo và cài đặt thư viện:
@@ -40,7 +40,7 @@ source venv/bin/activate  # Trên Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Tải dữ liệu và mô hình (Pre-trained):
+3. Tải dữ liệu và mô hình (Pre-trained):
 
 Tải file dataset và đặt vào thư mục data/raw/.
 
@@ -66,5 +66,6 @@ streamlit run app/app.py
 | GRU | Index | Index | Index |
 
 ## 👥 Nhóm phát triển (Contributors)
+
 [phdungDA] - role: Data Engineer
----bổ sung thêm tên và vị trí vào đây
+bổ sung thêm tên và vị trí vào đây
