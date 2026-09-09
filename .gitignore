@@ -1,5 +1,6 @@
 # Data & Models (Do not push large files)
 data/
+log/
 models/
 *.csv
 *.npy
