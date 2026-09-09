@@ -1,1 +1,29 @@
+# Core Data & ML
+pandas==2.1.4
+numpy==1.26.2
+scikit-learn==1.3.2
+tensorflow==2.15.0
+statsmodels==0.14.1
 
+# Visualization
+matplotlib==3.8.2
+seaborn==0.13.0
+plotly==5.18.0
+
+# Real-time Ingestion
+requests==2.31.0
+apscheduler==3.10.4
+python-dotenv==1.0.0
+
+# Storage
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+
+# Deployment & Serving
+streamlit==1.29.0
+streamlit-autorefresh==1.0.1
+fastapi==0.108.0
+uvicorn==0.25.0
+
+# Experiment Tracking (tùy chọn)
+mlflow==2.9.2
