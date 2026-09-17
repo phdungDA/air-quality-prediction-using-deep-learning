@@ -1,0 +1,20 @@
+# Không copy các thứ này vào image (giữ image nhẹ + tránh leak secrets)
+.git/
+.gitignore
+venv/
+env/
+.venv/
+__pycache__/
+*.pyc
+
+# Data / model lớn - nên mount qua volume thay vì bake vào image
+data/
+models/
+logs/
+
+# Notebook, docs không cần trong container
+notebooks/
+README.md
+
+# Secret - KHÔNG bao giờ copy .env vào image, truyền qua --env-file lúc chạy
+.env
