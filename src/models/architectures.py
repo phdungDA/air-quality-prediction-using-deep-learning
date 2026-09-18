@@ -20,7 +20,7 @@ def build_lstm_baseline(input_shape: tuple, num_classes: int = 5, lstm_units: in
     ])
 
     model.compile(
-        optimizer="adam",
+        optimizer=keras.optimizers.Adam(learning_rate=0.0005),
         loss="sparse_categorical_crossentropy",
         metrics=["accuracy"],
     )
