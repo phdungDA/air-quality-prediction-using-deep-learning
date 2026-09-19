@@ -1,37 +1,29 @@
 """
 Script train baseline LSTM.
 Chạy: python src/models/train.py
-(chạy từ thư mục gốc project để .env được load đúng)
+(chạy từ thư mục gốc project)
 """
 
 import os
 import sys
-import time
-import pickle
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # cho phép import "data.*" / "models.*"
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from data.dataloader import fetch_air_pollution_history
-from data.preprocess import create_sequences
-from models.architectures import build_lstm_baseline
+from src.data.preprocess import load_processed
+from src.models.architectures import build_lstm_baseline
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+import joblib
 
-WINDOW_SIZE = 24  # 24 giờ lịch sử để dự đoán giờ tiếp theo
+WINDOW_SIZE = 24
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-MODEL_DIR = os.path.join(PROJECT_ROOT, "models")
+MODEL_DIR    = os.path.join(PROJECT_ROOT, "models")
 
 
 def main():
-    end = int(time.time())
-    start = end - 365 * 24 * 3600  # 365 ngày gần nhất
-
-    print("Đang tải dữ liệu từ OpenWeatherMap...")
-    df = fetch_air_pollution_history(start=start, end=end)
-    print(f"Tải được {len(df)} bản ghi.")
-
-    X, y, scaler = create_sequences(df, window_size=WINDOW_SIZE)
+    print("Đang load data từ data/processed/ ...")
+    X, y, scaler = load_processed()
     print(f"X shape: {X.shape}, y shape: {y.shape}")
 
     X_train, X_test, y_train, y_test = train_test_split(
@@ -45,14 +37,7 @@ def main():
     best_model_path = os.path.join(MODEL_DIR, "lstm_baseline.h5")
 
     callbacks = [
-        # Lưu model tại epoch có val_accuracy cao nhất
-        ModelCheckpoint(
-            best_model_path,
-            monitor="val_accuracy",
-            save_best_only=True,
-            verbose=1
-        ),
-        # Dừng sớm nếu 5 epoch liên tiếp không cải thiện val_accuracy
+        ModelCheckpoint(best_model_path, monitor="val_accuracy", save_best_only=True, verbose=1),
         EarlyStopping(monitor="val_accuracy", patience=5, restore_best_weights=True, verbose=1),
     ]
 
@@ -64,11 +49,8 @@ def main():
         callbacks=callbacks,
     )
 
-    print(f"Đã lưu model tốt nhất vào {best_model_path}")
-    with open(os.path.join(MODEL_DIR, "minmax_scaler.pkl"), "wb") as f:
-        pickle.dump(scaler, f)
-
-    print(f"Đã lưu model + scaler vào {MODEL_DIR}")
+    joblib.dump(scaler, os.path.join(MODEL_DIR, "minmax_scaler.pkl"))
+    print(f"✅ Đã lưu model + scaler vào {MODEL_DIR}/")
 
 
 if __name__ == "__main__":
