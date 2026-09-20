@@ -2,18 +2,15 @@
 Load model + scaler đã train và sinh y_pred từ X.
 """
 
-import os
-import pickle
-
 import numpy as np
+import joblib
 from tensorflow import keras
 
 
 def load_artifacts(model_path: str, scaler_path: str):
     """Trả về (model, scaler). compile=False vì chỉ suy luận, không train tiếp."""
     model = keras.models.load_model(model_path, compile=False)
-    with open(scaler_path, "rb") as f:
-        scaler = pickle.load(f)
+    scaler = joblib.load(scaler_path)  # train.py lưu bằng joblib.dump
     return model, scaler
 
 
