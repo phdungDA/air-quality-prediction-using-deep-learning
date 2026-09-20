@@ -35,3 +35,4 @@ Thumbs.db
 
 # Web App (Streamlit / Flask cache)
 .streamlit/
+.h5
