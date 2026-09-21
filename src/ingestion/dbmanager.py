@@ -11,7 +11,8 @@ DB_CONFIG = {
     "port"    : 5432,
 }
 
-RAW_CSV_PATH = "data/raw"
+# Khớp với api_client.py và src/data/dataloader.py
+RAW_CSV_PATH = "data/raw/air_quality_3years.csv"
 
 CREATE_TABLE_SQL = """
 CREATE TABLE IF NOT EXISTS air_quality (

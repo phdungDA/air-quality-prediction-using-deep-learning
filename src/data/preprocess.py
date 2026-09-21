@@ -1,78 +1,61 @@
 """
-Tiền xử lý dữ liệu thô -> sequence cho LSTM.
-Đọc từ PostgreSQL, lưu X/y ra data/processed/ để tái sử dụng.
+Tiền xử lý dữ liệu thô → sequences cho LSTM/GRU.
+
+Module này là entry point để:
+  - Chạy toàn bộ pipeline lần đầu (build_dataset)
+  - Hoặc load lại tập đã xử lý (load_processed) khi đã có sẵn
+
+Pipeline thực tế nằm trong src/data/dataloader.py:
+  load CSV → handle missing → split 70/15/15 → MinMaxScale → sliding window
 """
 
-import sys
 import os
+import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-import numpy as np
-import joblib
-from sklearn.preprocessing import MinMaxScaler
-
-from src.data.dataloader import load_from_db
-
-FEATURE_COLS = ["co", "no", "no2", "o3", "so2", "pm2_5", "pm10", "nh3"]
-TARGET_COL   = "aqi"
-NUM_CLASSES  = 5
-
-PROCESSED_DIR = "data/processed"
+from src.data.dataloader import (                                # noqa: F401  (re-export)
+    build_dataset, load_processed, PROCESSED_DIR, RAW_CSV_PATH,
+)
 
 
-def scale_features(df, scaler: MinMaxScaler = None):
-    """Chuẩn hoá các cột feature về [0,1]. Trả về mảng đã scale + scaler đã fit."""
-    if scaler is None:
-        scaler = MinMaxScaler()
-        scaled = scaler.fit_transform(df[FEATURE_COLS])
+def run_preprocessing(force: bool = False):
+    """
+    Kiểm tra xem data/processed/ đã có đủ file chưa.
+    - Nếu chưa có (hoặc force=True): chạy build_dataset() từ CSV.
+    - Nếu đã có: load_processed() để tiết kiệm thời gian.
+
+    Trả về: X_train, y_train, X_val, y_val, X_test, y_test, scaler
+    """
+    required_files = [
+        "X_train.npy", "y_train.npy",
+        "X_val.npy",   "y_val.npy",
+        "X_test.npy",  "y_test.npy",
+        "scaler.pkl",
+    ]
+    all_exist = all(
+        os.path.exists(os.path.join(PROCESSED_DIR, f)) for f in required_files
+    )
+
+    # CSV raw mới hơn processed (vd vừa fetch lại 3 năm) → processed đã cũ, phải build lại
+    stale = False
+    if all_exist and os.path.exists(RAW_CSV_PATH):
+        stale = os.path.getmtime(RAW_CSV_PATH) > os.path.getmtime(
+            os.path.join(PROCESSED_DIR, "X_train.npy")
+        )
+        if stale:
+            print("⚠️  CSV raw mới hơn data/processed/ → build lại.")
+
+    if all_exist and not force and not stale:
+        print("📂 Tìm thấy data/processed/ — load lại thay vì build lại.")
+        return load_processed()
     else:
-        scaled = scaler.transform(df[FEATURE_COLS])
-    return scaled, scaler
-
-
-def create_sequences(df, window_size: int = 24, scaler: MinMaxScaler = None):
-    """
-    Sliding window:
-    Input (X): window_size giờ liên tiếp của các thành phần ô nhiễm
-    Output (y): nhãn AQI (0..4, đã trừ 1 từ 1..5) tại thời điểm NGAY SAU cửa sổ đó
-    """
-    scaled_features, scaler = scale_features(df, scaler)
-    labels = df[TARGET_COL].values
-
-    X, y = [], []
-    for i in range(len(df) - window_size):
-        X.append(scaled_features[i: i + window_size])
-        y.append(labels[i + window_size])
-
-    X = np.array(X)
-    y = np.array(y) - 1  # 1..5 -> 0..4 để dùng sparse_categorical_crossentropy
-
-    return X, y, scaler
-
-
-def save_processed(X: np.ndarray, y: np.ndarray, scaler: MinMaxScaler) -> None:
-    """Lưu X, y, scaler ra data/processed/."""
-    # Nếu data/processed đang là file thì xóa đi rồi tạo folder
-    if os.path.isfile(PROCESSED_DIR):
-        os.remove(PROCESSED_DIR)
-    os.makedirs(PROCESSED_DIR, exist_ok=True)
-
-    np.save(f"{PROCESSED_DIR}/X.npy", X)
-    np.save(f"{PROCESSED_DIR}/y.npy", y)
-    joblib.dump(scaler, f"{PROCESSED_DIR}/scaler.pkl")
-    print(f"✅ Đã lưu X{X.shape}, y{y.shape} và scaler vào {PROCESSED_DIR}/")
-
-
-def load_processed():
-    """Đọc lại X, y, scaler từ data/processed/ (bỏ qua bước preprocessing)."""
-    X      = np.load(f"{PROCESSED_DIR}/X.npy")
-    y      = np.load(f"{PROCESSED_DIR}/y.npy")
-    scaler = joblib.load(f"{PROCESSED_DIR}/scaler.pkl")
-    print(f"✅ Đã load X{X.shape}, y{y.shape} từ {PROCESSED_DIR}/")
-    return X, y, scaler
+        print("🔄 Chạy pipeline tiền xử lý từ đầu...")
+        return build_dataset(save=True)
 
 
 if __name__ == "__main__":
-    df = load_from_db()
-    X, y, scaler = create_sequences(df, window_size=24)
-    save_processed(X, y, scaler)
+    X_train, y_train, X_val, y_val, X_test, y_test, scaler = run_preprocessing()
+    print("\n✅ Preprocessing hoàn tất.")
+    print(f"   X_train : {X_train.shape}")
+    print(f"   X_val   : {X_val.shape}")
+    print(f"   X_test  : {X_test.shape}")
